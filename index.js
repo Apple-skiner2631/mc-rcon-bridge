@@ -13,7 +13,7 @@ app.get('/exec', async (req, res) => {
     try {
         const rcon = await Rcon.connect({
             host: "skyblock-pt.playwithbao.com",
-            port: 31031,
+            port: 44750,
             password: "player9950129005090"
         });
 
