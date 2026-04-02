@@ -1,5 +1,5 @@
 const express = require('express');
-const { Rcon } = require('rcon-client');
+const RconClient = require('rcon-client');
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -16,13 +16,13 @@ app.get('/exec', async (req, res) => {
     }
 
     try {
-        // 更新後的 Port: 44750
-        const rcon = await Rcon.connect({
+        const rcon = new RconClient.Rcon({
             host: "skyblock-pt.playwithbao.com",
             port: 44750,
             password: "player9950129005090"
         });
 
+        await rcon.connect();
         await rcon.send("whitelist add " + user);
         await rcon.send("team join 02_player " + user);
         await rcon.end();
