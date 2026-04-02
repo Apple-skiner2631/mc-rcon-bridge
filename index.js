@@ -1,5 +1,5 @@
 const express = require('express');
-const rconClient = require('rcon-client');
+const { Rcon } = require('rcon-client');
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -16,8 +16,8 @@ app.get('/exec', async (req, res) => {
     }
 
     try {
-        // 修正連線語法：嘗試使用靜態方法或實例化
-        const rcon = await rconClient.Rcon.connect({
+        // 更新後的 Port: 44750
+        const rcon = await Rcon.connect({
             host: "skyblock-pt.playwithbao.com",
             port: 44750,
             password: "player9950129005090"
