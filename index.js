@@ -16,7 +16,7 @@ app.get('/exec', async (req, res) => {
     }
 
     const rcon = new Rcon({
-        host: "skyblock-pt.playwithbao.com",
+        host: "plays-survival.playwithbao.com",
         port: 44750,
         password: "player9950129005090",
         timeout: 5000
