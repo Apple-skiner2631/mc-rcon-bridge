@@ -12,7 +12,7 @@ app.get('/exec', async (req, res) => {
     }
     
     if (!user || user === "keepalive") {
-        return res.send("Bridge is alive!");
+        return res.send("ok!");
     }
 
     const rcon = new Rcon({
