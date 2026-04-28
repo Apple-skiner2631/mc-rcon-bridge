@@ -6,7 +6,7 @@ const app = express();
 app.get('/', (req, res) => res.send('Keep-Alive: Bot is running!'));
 app.listen(10000);
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds,GatewayIntentBits.GuildMessages,GatewayIntentBits.MessageContent] });
 
 client.once('ready', () => console.log('Bot is ready!'));
 
