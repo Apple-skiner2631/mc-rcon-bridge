@@ -1,5 +1,4 @@
 const { Client, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, PermissionFlagsBits } = require('discord.js');
-const axios = require('axios');
 const express = require('express');
 
 const app = express();
@@ -35,10 +34,10 @@ client.on('messageCreate', async (message) => {
 
         const embed = new EmbedBuilder()
             .setTitle('🤨 Players\'Tavern | 帳號驗證系統')
-            .setDescription('**歡迎來到Players\'Tavern！為了確保遊戲品質與社群安全，進入伺服器前請先完成 Discord 帳號綁定。**')
+            .setDescription('**歡迎來到 Players\'Tavern！為了確保遊戲品質與社群安全，進入伺服器前請先完成 Discord 帳號綁定。**')
             .addFields(
                 { name: '📜 冒險者規範', value: '**[規則與指令](http://plays-survival.playwithbao.com:31031/#world:0:0:0:1500:0:0:0:0:perspective)**\n*進入前請務必詳閱，以免觸犯禁令。*', inline: false },
-                { name: '🛠️ 驗證流程', value: '1️⃣ 點擊下方 **「🔗 立即綁定帳號」** 按鈕\n2️⃣ 準確輸入您的 **遊戲 ID**\n3️⃣ 選擇您使用的 **遊戲版本** (Java/Bedrock)\n4️⃣ 點擊送出，白名單將在數秒內生效', inline: false },
+                { name: '🛠️ 驗證流程', value: '1️⃣ 點擊下方 **「🔗 立即綁定帳號」** 按鈕\n2️⃣ 準確輸入您的 **遊戲 ID**\n3️⃣ 選擇您使用的 **遊戲版本** (Java/Bedrock)\n4️⃣ 點擊送出，系統將自動處理', inline: false },
                 { name: '👥 營運團隊', value: '`02_player` 及 全體管理員', inline: true }
             )
             .setFooter({ text: 'Players\'Tavern 官方認證系統', iconURL: client.user.displayAvatarURL() })
@@ -75,6 +74,8 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     if (interaction.isModalSubmit() && interaction.customId === 'verify_modal') {
+        await interaction.deferReply({ ephemeral: true });
+
         const mcId = interaction.fields.getTextInputValue('mc_id');
         const ver = interaction.fields.getTextInputValue('mc_ver').toLowerCase();
         
@@ -84,12 +85,13 @@ client.on('interactionCreate', async (interaction) => {
         }
 
         try {
-            await axios.post(process.env.WEBHOOK_URL, {
-                content: `!run whitelist add ${finalId}`
-            });
-            await interaction.reply({ content: `**✅ 申請成功！**\n帳號 **${finalId}** 已成功加入白名單。\n祝您在 **Players\'Tavern** 有個愉快的冒險！`, ephemeral: true });
+            const cmdChannel = await client.channels.fetch(process.env.CMD_CHANNEL_ID);
+            
+            await cmdChannel.send(`whitelist add ${finalId}`);
+
+            await interaction.editReply({ content: `**✅ 申請成功！**\n帳號 **${finalId}** 已發送到伺服器監聽頻道。\n祝您在 **Players\'Tavern** 有個愉快的冒險！` });
         } catch (error) {
-            await interaction.reply({ content: `**❌ 傳輸失敗**\n目前無法連接至伺服器驗證接口，請聯繫管理員處理。`, ephemeral: true });
+            await interaction.editReply({ content: `**❌ 系統錯誤**\n請確認 Render 的 CMD_CHANNEL_ID 環境變數設定正確，且機器人有權限在該頻道發言。` });
         }
     }
 });
