@@ -4,11 +4,37 @@ const express = require('express');
 
 const app = express();
 app.get('/', (req, res) => res.send('Keep-Alive: Bot is running!'));
-app.listen(10000);
+app.listen(10000, '0.0.0.0');
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds,GatewayIntentBits.GuildMessages,GatewayIntentBits.MessageContent] });
+const client = new Client({ 
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent
+    ] 
+});
 
 client.once('ready', () => console.log('Bot is ready!'));
+
+client.on('messageCreate', async (message) => {
+    if (message.author.bot) return;
+
+    if (message.content === '!setup') {
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId('bind_account')
+                .setLabel('驗證/綁定帳號')
+                .setStyle(ButtonStyle.Primary)
+        );
+
+        const embed = new EmbedBuilder()
+            .setTitle('Player帳號驗證系統')
+            .setDescription('請點擊下方按鈕開始驗證程序')
+            .setColor(0x00AE86);
+
+        await message.channel.send({ embeds: [embed], components: [row] });
+    }
+});
 
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isButton() && interaction.customId === 'bind_account') {
@@ -28,7 +54,10 @@ client.on('interactionCreate', async (interaction) => {
             .setStyle(TextInputStyle.Short)
             .setRequired(true);
 
-        modal.addComponents(new ActionRowBuilder().addComponents(idInput), new ActionRowBuilder().addComponents(versionInput));
+        modal.addComponents(
+            new ActionRowBuilder().addComponents(idInput), 
+            new ActionRowBuilder().addComponents(versionInput)
+        );
         await interaction.showModal(modal);
     }
 
