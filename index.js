@@ -38,7 +38,7 @@ client.on('messageCreate', async (message) => {
             .addFields(
                 { name: '📜 冒險者規範', value: '**[規則與指令](http://plays-survival.playwithbao.com:31031/#world:0:0:0:1500:0:0:0:0:perspective)**\n*進入前請務必詳閱，以免觸犯禁令。*', inline: false },
                 { name: '🛠️ 驗證流程', value: '1️⃣ 點擊下方 **「🔗 立即綁定帳號」** 按鈕\n2️⃣ 準確輸入您的 **遊戲 ID**\n3️⃣ 選擇您使用的 **遊戲版本** (Java/Bedrock)\n4️⃣ 點擊送出，系統將自動處理', inline: false },
-                { name: '👥 營運團隊', value: '`02_player` 及 全體管理員', inline: true }
+                { name: '👥 營運團隊', value: '@apple_skin.', inline: true }
             )
             .setFooter({ text: 'Players\'Tavern 官方認證系統', iconURL: client.user.displayAvatarURL() })
             .setTimestamp()
