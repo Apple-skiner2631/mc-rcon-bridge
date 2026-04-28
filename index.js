@@ -20,7 +20,7 @@ client.on('messageCreate', async (message) => {
 
     if (message.content === '!setup') {
         if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) {
-            return message.reply('**❌ 只有管理員可以使用此指令。**').then(msg => {
+            return message.reply('**❌ 權限不足。**').then(msg => {
                 setTimeout(() => msg.delete(), 5000);
             });
         }
@@ -33,14 +33,9 @@ client.on('messageCreate', async (message) => {
         );
 
         const embed = new EmbedBuilder()
-            .setTitle('🤨 Players\'Tavern | 帳號驗證系統')
-            .setDescription('**歡迎來到 Players\'Tavern！為了確保遊戲品質與社群安全，進入伺服器前請先完成 Discord 帳號綁定。**')
-            .addFields(
-                { name: '📜 冒險者規範', value: '**[規則與指令](http://plays-survival.playwithbao.com:31031/#world:0:0:0:1500:0:0:0:0:perspective)**\n*進入前請務必詳閱，以免觸犯禁令。*', inline: false },
-                { name: '🛠️ 驗證流程', value: '1️⃣ 點擊下方 **「🔗 立即綁定帳號」** 按鈕\n2️⃣ 準確輸入您的 **遊戲 ID**\n3️⃣ 選擇您使用的 **遊戲版本** (Java/Bedrock)\n4️⃣ 點擊送出，系統將自動處理', inline: false },
-                { name: '👥 營運團隊', value: '@apple_skin.', inline: true }
-            )
-            .setFooter({ text: 'Players\'Tavern 官方認證系統', iconURL: client.user.displayAvatarURL() })
+            .setTitle('🤨 Players\'Tavern | 自動驗證系統')
+            .setDescription('**點擊下方按鈕，系統將透過控制台自動為您開啟白名單。**')
+            .setFooter({ text: 'Players\'Tavern 官方系統' })
             .setTimestamp()
             .setColor(0x2F3136);
 
@@ -51,25 +46,9 @@ client.on('messageCreate', async (message) => {
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isButton() && interaction.customId === 'bind_account') {
         const modal = new ModalBuilder().setCustomId('verify_modal').setTitle('身分驗證面板');
-        
-        const idInput = new TextInputBuilder()
-            .setCustomId('mc_id')
-            .setLabel("遊戲 ID")
-            .setPlaceholder("請輸入您的 Minecraft 角色名稱")
-            .setStyle(TextInputStyle.Short)
-            .setRequired(true);
-
-        const versionInput = new TextInputBuilder()
-            .setCustomId('mc_ver')
-            .setLabel("版本 (請輸入 Java 或 Bedrock)")
-            .setPlaceholder("例如: Bedrock")
-            .setStyle(TextInputStyle.Short)
-            .setRequired(true);
-
-        modal.addComponents(
-            new ActionRowBuilder().addComponents(idInput), 
-            new ActionRowBuilder().addComponents(versionInput)
-        );
+        const idInput = new TextInputBuilder().setCustomId('mc_id').setLabel("遊戲 ID").setPlaceholder("輸入 Minecraft ID").setStyle(TextInputStyle.Short).setRequired(true);
+        const versionInput = new TextInputBuilder().setCustomId('mc_ver').setLabel("版本 (Java/Bedrock)").setPlaceholder("例如: Bedrock").setStyle(TextInputStyle.Short).setRequired(true);
+        modal.addComponents(new ActionRowBuilder().addComponents(idInput), new ActionRowBuilder().addComponents(versionInput));
         await interaction.showModal(modal);
     }
 
@@ -78,22 +57,21 @@ client.on('interactionCreate', async (interaction) => {
 
         const mcId = interaction.fields.getTextInputValue('mc_id');
         const ver = interaction.fields.getTextInputValue('mc_ver').toLowerCase();
-        
-        let finalId = mcId;
-        if (ver.includes('bedrock') || ver.includes('基岩')) {
-            finalId = '.' + mcId;
-        }
+        let finalId = (ver.includes('bedrock') || ver.includes('基岩')) ? '.' + mcId : mcId;
 
         try {
             const cmdChannel = await client.channels.fetch(process.env.CMD_CHANNEL_ID);
             
-            await cmdChannel.send(`whitelist add ${finalId}`);
+            // 這裡使用你說的 /console 功能前綴
+            // 如果模組規定格式是 /console whitelist add ... 就用下面這行
+            await cmdChannel.send(`/console whitelist add ${finalId}`);
 
-            await interaction.editReply({ content: `**✅ 申請成功！**\n帳號 **${finalId}** 已發送到伺服器監聽頻道。\n祝您在 **Players\'Tavern** 有個愉快的冒險！` });
+            await interaction.editReply({ content: `**✅ 指令已發送至 Console！**\n已為 **${finalId}** 執行白名單指令。` });
         } catch (error) {
-            await interaction.editReply({ content: `**❌ 系統錯誤**\n請確認 Render 的 CMD_CHANNEL_ID 環境變數設定正確，且機器人有權限在該頻道發言。` });
+            await interaction.editReply({ content: `**❌ 發送失敗**\n請檢查 CMD_CHANNEL_ID 是否正確。` });
         }
     }
 });
 
-client.login(process.env.DISCORD_TOKEN);
+client.login(process.env.D
+             ISCORD_TOKEN);
