@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
+const { Client, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, PermissionFlagsBits } = require('discord.js');
 const axios = require('axios');
 const express = require('express');
 
@@ -20,17 +20,30 @@ client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
     if (message.content === '!setup') {
+        if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) {
+            return message.reply('**❌ 只有管理員可以使用此指令。**').then(msg => {
+                setTimeout(() => msg.delete(), 5000);
+            });
+        }
+
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('bind_account')
-                .setLabel('**🔗綁定帳號**')
-                .setStyle(ButtonStyle.Primary)
+                .setLabel('🔗 立即綁定帳號')
+                .setStyle(ButtonStyle.Success)
         );
 
         const embed = new EmbedBuilder()
-            .setTitle('**🔑 需要驗證**')
-            .setDescription('**歡迎來到** **Players\'Tavern**！**為了進入伺服器，您必須驗證您的 Minecraft 帳號。**\n\n📜 **請先閱讀：**\n**[規則與指令](http://plays-survival.playwithbao.com:31031/#world:0:0:0:1500:0:0:0:0:perspective)**\n\n**如何驗證：**\n1. **點擊下方的** **綁定帳號** 按鈕。\n**2. 輸入您的遊戲 ID 與版本。**\n**3. 指令將自動送出，請稍候進入伺服器。**\n\n**Players\'Tavern | 驗證系統**')
-            .setColor(0x00AE86);
+            .setTitle('🤨 Players\'Tavern | 帳號驗證系統')
+            .setDescription('**歡迎來到Players\'Tavern！為了確保遊戲品質與社群安全，進入伺服器前請先完成 Discord 帳號綁定。**')
+            .addFields(
+                { name: '📜 冒險者規範', value: '**[規則與指令](http://plays-survival.playwithbao.com:31031/#world:0:0:0:1500:0:0:0:0:perspective)**\n*進入前請務必詳閱，以免觸犯禁令。*', inline: false },
+                { name: '🛠️ 驗證流程', value: '1️⃣ 點擊下方 **「🔗 立即綁定帳號」** 按鈕\n2️⃣ 準確輸入您的 **遊戲 ID**\n3️⃣ 選擇您使用的 **遊戲版本** (Java/Bedrock)\n4️⃣ 點擊送出，白名單將在數秒內生效', inline: false },
+                { name: '👥 營運團隊', value: '`02_player` 及 全體管理員', inline: true }
+            )
+            .setFooter({ text: 'Players\'Tavern 官方認證系統', iconURL: client.user.displayAvatarURL() })
+            .setTimestamp()
+            .setColor(0x2F3136);
 
         await message.channel.send({ embeds: [embed], components: [row] });
     }
@@ -38,19 +51,19 @@ client.on('messageCreate', async (message) => {
 
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isButton() && interaction.customId === 'bind_account') {
-        const modal = new ModalBuilder().setCustomId('verify_modal').setTitle('**Players\'Tavern 帳號驗證**');
+        const modal = new ModalBuilder().setCustomId('verify_modal').setTitle('身分驗證面板');
         
         const idInput = new TextInputBuilder()
             .setCustomId('mc_id')
-            .setLabel("**您的 Minecraft ID**")
-            .setPlaceholder("**例如: Player123**")
+            .setLabel("遊戲 ID")
+            .setPlaceholder("請輸入您的 Minecraft 角色名稱")
             .setStyle(TextInputStyle.Short)
             .setRequired(true);
 
         const versionInput = new TextInputBuilder()
             .setCustomId('mc_ver')
-            .setLabel("**版本 (請輸入 Java 或 Bedrock)**")
-            .setPlaceholder("**Java / Bedrock**")
+            .setLabel("版本 (請輸入 Java 或 Bedrock)")
+            .setPlaceholder("例如: Bedrock")
             .setStyle(TextInputStyle.Short)
             .setRequired(true);
 
@@ -74,9 +87,9 @@ client.on('interactionCreate', async (interaction) => {
             await axios.post(process.env.WEBHOOK_URL, {
                 content: `!run whitelist add ${finalId}`
             });
-            await interaction.reply({ content: `**✅ 指令已送出！已將** **${finalId}** **加入白名單。**`, ephemeral: true });
+            await interaction.reply({ content: `**✅ 申請成功！**\n帳號 **${finalId}** 已成功加入白名單。\n祝您在 **Players\'Tavern** 有個愉快的冒險！`, ephemeral: true });
         } catch (error) {
-            await interaction.reply({ content: `**❌ 系統發送失敗，請聯繫管理員。**`, ephemeral: true });
+            await interaction.reply({ content: `**❌ 傳輸失敗**\n目前無法連接至伺服器驗證接口，請聯繫管理員處理。`, ephemeral: true });
         }
     }
 });
