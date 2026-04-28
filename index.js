@@ -13,14 +13,14 @@ const client = new Client({
     ] 
 });
 
-client.once('ready', () => console.log('Bot is ready!'));
+client.once('clientReady', (c) => console.log(`Ready! Logged in as ${c.user.tag}`));
 
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
     if (message.content === '!setup') {
         if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) {
-            return message.reply('**❌ 權限不足。**').then(msg => {
+            return message.reply('**❌ 權限不足**').then(msg => {
                 setTimeout(() => msg.delete(), 5000);
             });
         }
@@ -33,9 +33,12 @@ client.on('messageCreate', async (message) => {
         );
 
         const embed = new EmbedBuilder()
-            .setTitle('🤨 Players\'Tavern | 自動驗證系統')
-            .setDescription('**點擊下方按鈕，系統將透過控制台自動為您開啟白名單。**')
-            .setFooter({ text: 'Players\'Tavern 官方系統' })
+            .setTitle('🛡️ Players\'Tavern | 自動驗證系統')
+            .setDescription('**點擊下方按鈕填寫資料，系統將嘗試透過控制台自動開啟白名單。**')
+            .addFields(
+                { name: '👥 營運團隊', value: '`02_player` 及 全體管理員', inline: true }
+            )
+            .setFooter({ text: 'Players\'Tavern | Console 連動模式' })
             .setTimestamp()
             .setColor(0x2F3136);
 
@@ -46,8 +49,8 @@ client.on('messageCreate', async (message) => {
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isButton() && interaction.customId === 'bind_account') {
         const modal = new ModalBuilder().setCustomId('verify_modal').setTitle('身分驗證面板');
-        const idInput = new TextInputBuilder().setCustomId('mc_id').setLabel("遊戲 ID").setPlaceholder("輸入 Minecraft ID").setStyle(TextInputStyle.Short).setRequired(true);
-        const versionInput = new TextInputBuilder().setCustomId('mc_ver').setLabel("版本 (Java/Bedrock)").setPlaceholder("例如: Bedrock").setStyle(TextInputStyle.Short).setRequired(true);
+        const idInput = new TextInputBuilder().setCustomId('mc_id').setLabel("遊戲 ID").setPlaceholder("Minecraft ID").setStyle(TextInputStyle.Short).setRequired(true);
+        const versionInput = new TextInputBuilder().setCustomId('mc_ver').setLabel("版本 (Java/Bedrock)").setPlaceholder("Java 或 Bedrock").setStyle(TextInputStyle.Short).setRequired(true);
         modal.addComponents(new ActionRowBuilder().addComponents(idInput), new ActionRowBuilder().addComponents(versionInput));
         await interaction.showModal(modal);
     }
@@ -62,16 +65,13 @@ client.on('interactionCreate', async (interaction) => {
         try {
             const cmdChannel = await client.channels.fetch(process.env.CMD_CHANNEL_ID);
             
-            // 這裡使用你說的 /console 功能前綴
-            // 如果模組規定格式是 /console whitelist add ... 就用下面這行
             await cmdChannel.send(`/console whitelist add ${finalId}`);
 
-            await interaction.editReply({ content: `**✅ 指令已發送至 Console！**\n已為 **${finalId}** 執行白名單指令。` });
+            await interaction.editReply({ content: `**✅ 指令已發出**\n已執行：\`/console whitelist add ${finalId}\`` });
         } catch (error) {
-            await interaction.editReply({ content: `**❌ 發送失敗**\n請檢查 CMD_CHANNEL_ID 是否正確。` });
+            await interaction.editReply({ content: `**❌ 發送失敗**\n請確認 CMD_CHANNEL_ID 設定正確。` });
         }
     }
 });
 
-client.login(process.env.D
-             ISCORD_TOKEN);
+client.login(process.env.DISCORD_TOKEN);
