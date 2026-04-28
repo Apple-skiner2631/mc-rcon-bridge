@@ -23,13 +23,13 @@ client.on('messageCreate', async (message) => {
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('bind_account')
-                .setLabel('驗證/綁定帳號')
+                .setLabel('**🔗綁定帳號**')
                 .setStyle(ButtonStyle.Primary)
         );
 
         const embed = new EmbedBuilder()
-            .setTitle('Player帳號驗證系統')
-            .setDescription('請點擊下方按鈕開始驗證程序')
+            .setTitle('**🔑 需要驗證**')
+            .setDescription('**歡迎來到** **Players\'Tavern**！**為了進入伺服器，您必須驗證您的 Minecraft 帳號。**\n\n📜 **請先閱讀：**\n**[規則與指令](http://plays-survival.playwithbao.com:31031/#world:0:0:0:1500:0:0:0:0:perspective)**\n\n**如何驗證：**\n1. **點擊下方的** **綁定帳號** 按鈕。\n**2. 輸入您的遊戲 ID 與版本。**\n**3. 指令將自動送出，請稍候進入伺服器。**\n\n**Players\'Tavern | 驗證系統**')
             .setColor(0x00AE86);
 
         await message.channel.send({ embeds: [embed], components: [row] });
@@ -38,19 +38,19 @@ client.on('messageCreate', async (message) => {
 
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isButton() && interaction.customId === 'bind_account') {
-        const modal = new ModalBuilder().setCustomId('verify_modal').setTitle('Player帳號驗證');
+        const modal = new ModalBuilder().setCustomId('verify_modal').setTitle('**Players\'Tavern 帳號驗證**');
         
         const idInput = new TextInputBuilder()
             .setCustomId('mc_id')
-            .setLabel("您的 Minecraft ID")
-            .setPlaceholder("例如: Player123")
+            .setLabel("**您的 Minecraft ID**")
+            .setPlaceholder("**例如: Player123**")
             .setStyle(TextInputStyle.Short)
             .setRequired(true);
 
         const versionInput = new TextInputBuilder()
             .setCustomId('mc_ver')
-            .setLabel("版本 (請輸入 Java 或 Bedrock)")
-            .setPlaceholder("Java / Bedrock")
+            .setLabel("**版本 (請輸入 Java 或 Bedrock)**")
+            .setPlaceholder("**Java / Bedrock**")
             .setStyle(TextInputStyle.Short)
             .setRequired(true);
 
@@ -74,9 +74,9 @@ client.on('interactionCreate', async (interaction) => {
             await axios.post(process.env.WEBHOOK_URL, {
                 content: `!run whitelist add ${finalId}`
             });
-            await interaction.reply({ content: `✅ 指令已送出！已將 **${finalId}** 加入白名單。`, ephemeral: true });
+            await interaction.reply({ content: `**✅ 指令已送出！已將** **${finalId}** **加入白名單。**`, ephemeral: true });
         } catch (error) {
-            await interaction.reply({ content: `❌ 系統發送失敗，請聯繫管理員。`, ephemeral: true });
+            await interaction.reply({ content: `**❌ 系統發送失敗，請聯繫管理員。**`, ephemeral: true });
         }
     }
 });
