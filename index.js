@@ -19,7 +19,7 @@ async function runCommandInGame(cmd1, cmd2) {
         host: 'plays-survival.playwithbao.com', 
         username: 'Verify_Check', 
         version: false,
-        auth: 'offline',
+        auth: 'microsoft',
         hideErrors: false
     });
 
