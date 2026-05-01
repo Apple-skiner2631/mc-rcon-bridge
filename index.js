@@ -33,12 +33,12 @@ client.on('messageCreate', async (message) => {
         );
 
         const embed = new EmbedBuilder()
-            .setTitle('## 🤨 Players\'Tavern | 帳號驗證系統')
+            .setTitle('🤨 Players\'Tavern | 帳號驗證系統')
             .setDescription('**歡迎來到 Players\'Tavern！為了確保遊戲品質與社群安全，進入伺服器前請先完成 Discord 帳號綁定。**')
             .addFields(
                 { name: '📜 冒險者規範', value: '**[規則與指令](http://plays-survival.playwithbao.com:31031/#world:0:0:0:1500:0:0:0:0:perspective)**\n**進入前請務必詳閱，以免觸犯遊戲規則。**', inline: false },
                 { name: '🛠️ 驗證流程', value: '1️⃣ 點擊下方 **「🔗 立即綁定帳號」** 按鈕\n2️⃣ 準確輸入您的 **遊戲 ID**\n3️⃣ 選擇您使用的 **遊戲版本** (Java/Bedrock)\n4️⃣ 點擊送出，系統將自動處理', inline: false },
-                { name: '👥 營運團隊', value: '`管理員 Apple_skiner', inline: true }
+                { name: '👥 營運團隊', value: '管理員 Apple_skiner', inline: true }
             )
             .setFooter({ text: 'Players\'Tavern 官方認證系統', iconURL: client.user.displayAvatarURL() })
             .setTimestamp()
