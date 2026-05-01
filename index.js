@@ -19,16 +19,20 @@ async function runCommandInGame(cmd1, cmd2) {
         host: 'plays-survival.playwithbao.com', 
         username: 'Verify_Check', 
         version: false,
-        auth: 'microsoft',
+        auth: 'microsoft', 
         hideErrors: false
     });
 
+    bot.on('resource_pack', () => {
+        bot.acceptResourcePack();
+    });
+
     bot.on('error', (err) => {
-        console.error(err.message);
+        console.error('Mineflayer Error:', err.message);
     });
 
     bot.on('kicked', (reason) => {
-        console.log(reason);
+        console.log('Bot was kicked:', reason);
     });
 
     bot.once('spawn', () => {
@@ -69,7 +73,7 @@ client.on('messageCreate', async (message) => {
                 { name: '🛠️ 驗證流程', value: '1️⃣ 點擊下方 **「🔗 立即綁定帳號」** 按鈕\n2️⃣ 準確輸入您的 **遊戲 ID**\n3️⃣ 選擇您使用的 **遊戲版本** (Java/Bedrock)\n4️⃣ 點擊送出，系統將自動處理', inline: false },
                 { name: '👥 營運團隊', value: '管理員 Apple_skiner', inline: true }
             )
-            .setFooter({ text: 'Players\'Tavern 官方認證系統', iconURL: client.user.displayAvatarURL() })
+            .setFooter({ text: 'Players\'Tavern 官方帳號認證系統', iconURL: client.user.displayAvatarURL() })
             .setTimestamp()
             .setColor(0x2F3136);
 
@@ -108,9 +112,12 @@ client.on('interactionCreate', async (interaction) => {
         const mcId = interaction.fields.getTextInputValue('mc_id');
         const ver = interaction.fields.getTextInputValue('mc_ver').toLowerCase();
         
-        let finalId = mcId;
+
+        let processedId = mcId.trim().replace(/\s+/g, '_');
+
+        let finalId = processedId;
         if (ver.includes('bedrock') || ver.includes('基岩')) {
-            finalId = '.' + mcId;
+            finalId = '.' + processedId;
         }
 
         const cmd1 = `/whitelist add ${finalId}`;
@@ -118,7 +125,7 @@ client.on('interactionCreate', async (interaction) => {
 
         try {
             const cmdChannel = await client.channels.fetch(process.env.CMD_CHANNEL_ID);
-            await cmdChannel.send(`【驗證申請】ID: ${finalId} | 版本: ${ver}`);
+            await cmdChannel.send(`【驗證申請】處理後 ID: **${finalId}** | 版本: ${ver}`);
 
             await runCommandInGame(cmd1, cmd2);
 
