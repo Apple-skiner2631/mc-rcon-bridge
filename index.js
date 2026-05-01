@@ -17,12 +17,35 @@ const client = new Client({
 
 
 async function runCommandInGame(cmd1, cmd2) {
+    console.log('嘗試連線至伺服器...');
     const bot = mineflayer.createBot({
         host: 'plays-survival.playwithbao.com', 
-        port: 44750,       
+//        port: 25565,        
         username: 'Verify_Check', 
-        version: false,
+        version: '1.21.11',
+        auth: 'offline',
+        hideErrors: false
     });
+
+
+    bot.on('error', (err) => {
+        console.error('Mineflayer 連線錯誤:', err.message);
+    });
+
+    bot.on('kicked', (reason) => {
+        console.log('被伺服器拒絕連線，原因:', reason);
+    });
+
+    bot.once('spawn', () => {
+        console.log('Verify_Check 已成功進入伺服器並生成！');
+        bot.chat(cmd1); 
+        setTimeout(() => {
+            bot.chat(cmd2); 
+            console.log(`執行完畢，準備退出`);
+            bot.quit();
+        }, 2000);
+    });
+}
 
     bot.once('spawn', () => {
         console.log('Mineflayer 機器人已進入伺服器執行指令...');
