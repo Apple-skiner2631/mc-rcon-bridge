@@ -2,7 +2,6 @@ const { Client, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle,
 const express = require('express');
 const mineflayer = require('mineflayer');
 
-
 const app = express();
 app.get('/', (req, res) => res.send('Keep-Alive: Bot is running!'));
 app.listen(10000, '0.0.0.0');
@@ -15,53 +14,36 @@ const client = new Client({
     ] 
 });
 
-
 async function runCommandInGame(cmd1, cmd2) {
-    console.log('嘗試連線至伺服器...');
     const bot = mineflayer.createBot({
         host: 'plays-survival.playwithbao.com', 
-//        port: 25565,        
         username: 'Verify_Check', 
-        version: '1.21.11',
+        version: false,
         auth: 'offline',
         hideErrors: false
     });
 
-
     bot.on('error', (err) => {
-        console.error('Mineflayer 連線錯誤:', err.message);
+        console.error(err.message);
     });
 
     bot.on('kicked', (reason) => {
-        console.log('被伺服器拒絕連線，原因:', reason);
+        console.log(reason);
     });
 
     bot.once('spawn', () => {
-        console.log('Verify_Check 已成功進入伺服器並生成！');
         bot.chat(cmd1); 
         setTimeout(() => {
             bot.chat(cmd2); 
-            console.log(`執行完畢，準備退出`);
-            bot.quit();
+            setTimeout(() => {
+                bot.quit();
+            }, 500);
         }, 2000);
     });
 }
 
-    bot.once('spawn', () => {
-        console.log('Mineflayer 機器人已進入伺服器執行指令...');
-        bot.chat(cmd1); 
-        setTimeout(() => {
-            bot.chat(cmd2); 
-            bot.quit();
-        }, 1500);
-    });
-
-    bot.on('error', err => console.log('Mineflayer 錯誤:', err));
-}
-
 client.once('ready', () => console.log('Discord Bot is ready!'));
 
-// --- !setup 指令 ---
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
@@ -94,7 +76,6 @@ client.on('messageCreate', async (message) => {
         await message.channel.send({ embeds: [embed], components: [row] });
     }
 });
-
 
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isButton() && interaction.customId === 'bind_account') {
@@ -136,7 +117,6 @@ client.on('interactionCreate', async (interaction) => {
         const cmd2 = `/team join 02_player ${finalId}`;
 
         try {
-
             const cmdChannel = await client.channels.fetch(process.env.CMD_CHANNEL_ID);
             await cmdChannel.send(`【驗證申請】ID: ${finalId} | 版本: ${ver}`);
 
@@ -146,7 +126,6 @@ client.on('interactionCreate', async (interaction) => {
                 content: `**✅ 申請成功！**\n帳號 **${finalId}** 正由系統自動加入白名單並分隊。\n請於 10 秒後嘗試進入伺服器！` 
             });
         } catch (error) {
-            console.error(error);
             await interaction.editReply({ 
                 content: `**❌ 系統錯誤**\n無法連接至伺服器或指令發送失敗。請聯繫管理員 Apple_skiner。` 
             });
