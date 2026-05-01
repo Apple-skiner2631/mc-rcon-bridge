@@ -21,6 +21,7 @@ async function runCommandInGame(cmd1, cmd2) {
         host: 'plays-survival.playwithbao.com', 
         port: 44750,       
         username: 'Verify_Check', 
+        version: false,
     });
 
     bot.once('spawn', () => {
