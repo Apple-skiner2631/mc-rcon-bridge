@@ -1,5 +1,7 @@
 const { Client, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, PermissionFlagsBits } = require('discord.js');
 const express = require('express');
+const mineflayer = require('mineflayer');
+
 
 const app = express();
 app.get('/', (req, res) => res.send('Keep-Alive: Bot is running!'));
@@ -13,8 +15,29 @@ const client = new Client({
     ] 
 });
 
-client.once('ready', () => console.log('Bot is ready!'));
 
+async function runCommandInGame(cmd1, cmd2) {
+    const bot = mineflayer.createBot({
+        host: 'plays-survival.playwithbao.com', 
+        port: 44750,       
+        username: 'Verify_Check', 
+    });
+
+    bot.once('spawn', () => {
+        console.log('Mineflayer 機器人已進入伺服器執行指令...');
+        bot.chat(cmd1); 
+        setTimeout(() => {
+            bot.chat(cmd2); 
+            bot.quit();
+        }, 1500);
+    });
+
+    bot.on('error', err => console.log('Mineflayer 錯誤:', err));
+}
+
+client.once('ready', () => console.log('Discord Bot is ready!'));
+
+// --- !setup 指令 ---
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
@@ -48,6 +71,7 @@ client.on('messageCreate', async (message) => {
     }
 });
 
+
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isButton() && interaction.customId === 'bind_account') {
         const modal = new ModalBuilder().setCustomId('verify_modal').setTitle('身分驗證面板');
@@ -72,34 +96,35 @@ client.on('interactionCreate', async (interaction) => {
         );
         await interaction.showModal(modal);
     }
-if (interaction.isModalSubmit() && interaction.customId === 'verify_modal') {
+
+    if (interaction.isModalSubmit() && interaction.customId === 'verify_modal') {
         await interaction.deferReply({ ephemeral: true });
 
         const mcId = interaction.fields.getTextInputValue('mc_id');
         const ver = interaction.fields.getTextInputValue('mc_ver').toLowerCase();
         
-
         let finalId = mcId;
         if (ver.includes('bedrock') || ver.includes('基岩')) {
             finalId = '.' + mcId;
         }
 
+        const cmd1 = `/whitelist add ${finalId}`;
+        const cmd2 = `/team join 02_player ${finalId}`;
+
         try {
 
             const cmdChannel = await client.channels.fetch(process.env.CMD_CHANNEL_ID);
+            await cmdChannel.send(`【驗證申請】ID: ${finalId} | 版本: ${ver}`);
 
-            await cmdChannel.send(`whitelist add ${finalId}`);
-
-
-            await cmdChannel.send(`team join 02_player ${finalId}`);
+            await runCommandInGame(cmd1, cmd2);
 
             await interaction.editReply({ 
-                content: `**✅ 申請成功！**\n帳號 **${finalId}** 已成功加入白名單並分配至隊伍。\n祝您在 **Players'Tavern** 有個愉快的冒險！` 
+                content: `**✅ 申請成功！**\n帳號 **${finalId}** 正由系統自動加入白名單並分隊。\n請於 10 秒後嘗試進入伺服器！` 
             });
         } catch (error) {
             console.error(error);
             await interaction.editReply({ 
-                content: `**❌ 系統錯誤**\n請確認 Render 的 CMD_CHANNEL_ID 環境變數設定正確，且機器人有該頻道發言權限。` 
+                content: `**❌ 系統錯誤**\n無法連接至伺服器或指令發送失敗。請聯繫管理員 Apple_skiner。` 
             });
         }
     }
