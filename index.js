@@ -18,7 +18,7 @@ async function runCommandInGame(cmd1, cmd2) {
     const bot = mineflayer.createBot({
         host: 'plays-survival.playwithbao.com', 
         username: 'Verify_Check', 
-        version: false,
+        version: '1.21.11', 
         auth: 'microsoft', 
         hideErrors: false
     });
@@ -95,7 +95,7 @@ client.on('interactionCreate', async (interaction) => {
         const versionInput = new TextInputBuilder()
             .setCustomId('mc_ver')
             .setLabel("版本 (請輸入 Java 或 Bedrock)")
-            .setPlaceholder("例如: Bedrock")
+            .setPlaceholder("例如: Bedrock 或 Java")
             .setStyle(TextInputStyle.Short)
             .setRequired(true);
 
@@ -110,14 +110,23 @@ client.on('interactionCreate', async (interaction) => {
         await interaction.deferReply({ ephemeral: true });
 
         const mcId = interaction.fields.getTextInputValue('mc_id');
-        const ver = interaction.fields.getTextInputValue('mc_ver').toLowerCase();
+        const ver = interaction.fields.getTextInputValue('mc_ver').toLowerCase().trim();
         
-
         let processedId = mcId.trim().replace(/\s+/g, '_');
-
         let finalId = processedId;
-        if (ver.includes('bedrock') || ver.includes('基岩')) {
+        let displayVersion = "Java 版";
+
+        if (ver.includes('bedrock') || ver.includes('基岩') || ver.includes('bed') || ver.includes('pe')) {
+            if (processedId.startsWith('.')) {
+                processedId = processedId.substring(1);
+            }
             finalId = '.' + processedId;
+            displayVersion = "Bedrock (基岩) 版";
+        } else {
+            if (processedId.startsWith('.')) {
+                finalId = processedId.substring(1);
+            }
+            displayVersion = "Java 版";
         }
 
         const cmd1 = `/whitelist add ${finalId}`;
@@ -125,12 +134,12 @@ client.on('interactionCreate', async (interaction) => {
 
         try {
             const cmdChannel = await client.channels.fetch(process.env.CMD_CHANNEL_ID);
-            await cmdChannel.send(`【驗證申請】處理後 ID: **${finalId}** | 版本: ${ver}`);
+            await cmdChannel.send(`【驗證申請】處理後 ID: **${finalId}** | 玩家輸入版本: ${ver} ➡️ 判定為: **${displayVersion}**`);
 
             await runCommandInGame(cmd1, cmd2);
 
             await interaction.editReply({ 
-                content: `**✅ 申請成功！**\n帳號 **${finalId}** 正由系統自動加入白名單並分隊。\n請於 10 秒後嘗試進入伺服器！` 
+                content: `**✅ 申請成功！**\n帳號 **${finalId}** 經系統判定為 **${displayVersion}**，已自動加入白名單並分隊。\n請於 10 秒後嘗試進入伺服器！` 
             });
         } catch (error) {
             await interaction.editReply({ 
