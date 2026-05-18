@@ -114,7 +114,7 @@ client.on('interactionCreate', async (interaction) => {
         
         if (ver !== 'java' && ver !== 'bedrock' && ver !== '基岩') {
             return await interaction.editReply({
-                content: `**❌ 驗證失敗：無效的版本識別**\n版本欄位僅能接受輸入 **Java**、**java**、**Bedrock**、**bedrock** 或 **基岩**。\n請重新點擊按鈕正確填寫。`
+                content: `**❌ 驗證失敗：無效的版本輸入識別**\n版本欄位僅能接受輸入 **Java**、**java**、**Bedrock**、**bedrock** 或 **基岩**。\n請重新點擊按鈕正確填寫。`
             });
         }
 
