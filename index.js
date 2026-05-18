@@ -130,7 +130,7 @@ client.on('interactionCreate', async (interaction) => {
 
         try {
             const cmdChannel = await client.channels.fetch(process.env.CMD_CHANNEL_ID);
-            await cmdChannel.send(`【驗證申請】處理後 ID: **${finalId}** | 版本: ${ver}`);
+            await cmdChannel.send(`【驗證申請紀錄】玩家處理後 ID: **${finalId}** | 遊戲版本: ${ver}`);
 
             await runCommandInGame(cmd1, cmd2);
 
