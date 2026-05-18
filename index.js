@@ -17,8 +17,8 @@ const client = new Client({
 async function runCommandInGame(cmd1, cmd2) {
     const bot = mineflayer.createBot({
         host: 'plays-survival.playwithbao.com', 
-        username: 'Verify_Check', 
-        version: '1.21.11', 
+        username: 'Verify', 
+        version: false,
         auth: 'microsoft', 
         hideErrors: false
     });
@@ -69,9 +69,9 @@ client.on('messageCreate', async (message) => {
             .setTitle('🤨 Players\'Tavern | 帳號驗證系統')
             .setDescription('**歡迎來到 Players\'Tavern！為了確保遊戲品質與社群安全，進入伺服器前請先完成 Discord 帳號綁定。**')
             .addFields(
-                { name: '📜 冒險者規範', value: '**[規則與指令](http://plays-survival.playwithbao.com:31031/#world:0:0:0:1500:0:0:0:0:perspective)**\n**進入前請務必詳閱，以免觸犯遊戲規則。**', inline: false },
+                { name: '📜 冒險者規範', value: '**[規則與指令](http://plays-survival.playwithbao.com:37777/#world:0:0:0:1500:0:0:0:0:perspective)**\n**進入前請務必詳閱，以免觸犯遊戲規則。**', inline: false },
                 { name: '🛠️ 驗證流程', value: '1️⃣ 點擊下方 **「🔗 立即綁定帳號」** 按鈕\n2️⃣ 準確輸入您的 **遊戲 ID**\n3️⃣ 選擇您使用的 **遊戲版本** (Java/Bedrock)\n4️⃣ 點擊送出，系統將自動處理', inline: false },
-                { name: '👥 營運團隊', value: '管理員 Apple_skiner', inline: true }
+                { name: '👥 運營團隊', value: '管理員 Apple_skin2631', inline: true }
             )
             .setFooter({ text: 'Players\'Tavern 官方帳號認證系統', iconURL: client.user.displayAvatarURL() })
             .setTimestamp()
@@ -95,7 +95,7 @@ client.on('interactionCreate', async (interaction) => {
         const versionInput = new TextInputBuilder()
             .setCustomId('mc_ver')
             .setLabel("版本 (請輸入 Java 或 Bedrock)")
-            .setPlaceholder("例如: Bedrock 或 Java")
+            .setPlaceholder("例如: Java")
             .setStyle(TextInputStyle.Short)
             .setRequired(true);
 
@@ -112,21 +112,17 @@ client.on('interactionCreate', async (interaction) => {
         const mcId = interaction.fields.getTextInputValue('mc_id');
         const ver = interaction.fields.getTextInputValue('mc_ver').toLowerCase().trim();
         
-        let processedId = mcId.trim().replace(/\s+/g, '_');
-        let finalId = processedId;
-        let displayVersion = "Java 版";
+        if (ver !== 'java' && ver !== 'bedrock' && ver !== '基岩') {
+            return await interaction.editReply({
+                content: `**❌ 驗證失敗：無效的版本識別**\n版本欄位僅能接受輸入 **Java**、**java**、**Bedrock**、**bedrock** 或 **基岩**。\n請重新點擊按鈕正確填寫。`
+            });
+        }
 
-        if (ver.includes('bedrock') || ver.includes('基岩') || ver.includes('bed') || ver.includes('pe')) {
-            if (processedId.startsWith('.')) {
-                processedId = processedId.substring(1);
-            }
+        let processedId = mcId.trim().replace(/\s+/g, '_');
+
+        let finalId = processedId;
+        if (ver.includes('bedrock') || ver.includes('基岩')) {
             finalId = '.' + processedId;
-            displayVersion = "Bedrock (基岩) 版";
-        } else {
-            if (processedId.startsWith('.')) {
-                finalId = processedId.substring(1);
-            }
-            displayVersion = "Java 版";
         }
 
         const cmd1 = `/whitelist add ${finalId}`;
@@ -134,16 +130,16 @@ client.on('interactionCreate', async (interaction) => {
 
         try {
             const cmdChannel = await client.channels.fetch(process.env.CMD_CHANNEL_ID);
-            await cmdChannel.send(`【驗證申請】處理後 ID: **${finalId}** | 玩家輸入版本: ${ver} ➡️ 判定為: **${displayVersion}**`);
+            await cmdChannel.send(`【驗證申請】處理後 ID: **${finalId}** | 版本: ${ver}`);
 
             await runCommandInGame(cmd1, cmd2);
 
             await interaction.editReply({ 
-                content: `**✅ 申請成功！**\n帳號 **${finalId}** 經系統判定為 **${displayVersion}**，已自動加入白名單並分隊。\n請於 10 秒後嘗試進入伺服器！` 
+                content: `**✅ 申請成功！**\n帳號 **${finalId}** 正由系統自動加入白名單並分隊。\n請於 15 秒後嘗試進入伺服器！` 
             });
         } catch (error) {
             await interaction.editReply({ 
-                content: `**❌ 系統錯誤**\n無法連接至伺服器或指令發送失敗。請聯繫管理員 Apple_skiner。` 
+                content: `**❌ 系統錯誤**\n無法連接至伺服器或填寫格式錯誤。請聯繫管理員 Apple_skiner。` 
             });
         }
     }
