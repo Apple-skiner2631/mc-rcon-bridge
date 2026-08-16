@@ -139,7 +139,7 @@ client.on('interactionCreate', async (interaction) => {
             });
         } catch (error) {
             await interaction.editReply({ 
-                content: `**❌ 系統錯誤**\n無法連接至伺服器或填寫格式錯誤。請聯繫管理員 Apple_skiner。` 
+                content: `**❌ 系統錯誤**\n無法連接至伺服器或填寫格式錯誤。請聯繫管理員 Apple_skin。` 
             });
         }
     }
